@@ -42,10 +42,10 @@ provide an editable map.
       var pointarray = [];
       var polyarray = [];
 
-      n = $("#field-bbox-north-lat").val();
-      s = $("#field-bbox-south-lat").val();
-      e = $("#field-bbox-east-long").val();
-      w = $("#field-bbox-west-long").val();
+      n = Number( $("#field-bbox-north-lat").val() );
+      s = Number( $("#field-bbox-south-lat").val() );
+      e = Number( $("#field-bbox-east-long").val() );
+      w = Number( $("#field-bbox-west-long").val() );
 
       if(!n || !s || !e || !w){
         return;
