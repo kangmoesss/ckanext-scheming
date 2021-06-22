@@ -2,6 +2,7 @@ import re
 import datetime
 import pytz
 import json
+import ckan.plugins.toolkit as toolkit
 
 from ckantoolkit import config, _
 
@@ -120,6 +121,49 @@ def scheming_datastore_choices(field):
     return [{'value': r[fields[0]], 'label': r[fields[1]]}
             for r in result['records']]
 
+
+def load_json(j):
+    try:
+        new_val = json.loads(j)
+    except Exception:
+        new_val = j
+    return new_val
+
+def scheming_dataset_choices(field):
+    """
+    Required scheming field:
+    "dataset_field_filter": ["fields", "to", "return", "from", "search"]
+
+    Optional scheming fields:
+    "dataset_choices_columns": {
+        "value": "value_column_name",
+        "label": "label_column_name" }
+    "dataset_choices_limit": 1000 (default)
+
+    When columns aren't specified the first column is used as value
+    and second column used as label.
+    """
+    filter = field.get('dataset_field_filter')
+    limit = field.get('dataset_choices_limit', 1000)
+    columns = field.get('dataset_choices_columns')
+    fields = None
+    if columns:
+        fields = [columns['value'], columns['label']]
+
+    lc = LocalCKAN(username='')
+    try:
+        result = toolkit.get_action('package_search')(data_dict={
+            'fl': filter,
+            'rows': limit,
+        })
+    except (NotFound, NotAuthorized):
+        return []
+
+    if not fields:
+        fields = [f['id'] for f in result['fields'] if f['id'] != '_id']
+
+    return [{'value': r[fields[0]], 'label': load_json(r[fields[1]])}
+            for r in result.get('results')]
 
 def scheming_field_required(field):
     """
