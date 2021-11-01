@@ -357,11 +357,13 @@ def expand_form_composite(data, fieldnames):
         parts[1] = indexes[parts[1]]
         try:
             try:
-                comp[int(parts[1])][sep.join(parts[2:])] = data[key]
+                # new scheming repeating subfields are one relative so must subtract 1 from index or get index error
+                comp[int(parts[1]) - 1][sep.join(parts[2:])] = data[key]
                 del data[key]
             except IndexError:
                 comp.append({})
-                comp[int(parts[1])][sep.join(parts[2:])] = data[key]
+                # new scheming repeating subfields are one relative so must subtract 1 from index or get index error
+                comp[int(parts[1]) - 1][sep.join(parts[2:])] = data[key]
                 del data[key]
         except (IndexError, ValueError):
             pass  # best-effort only
